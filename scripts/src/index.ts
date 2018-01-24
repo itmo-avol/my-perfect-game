@@ -1,3 +1,4 @@
+//this.output.hidden=true;
 
 function getRandomInt(min:number, max:number):number
 {
@@ -7,72 +8,132 @@ function getRandomInt(min:number, max:number):number
 enum Colors{Maroon, DarkRed, FireBrick, Red, Salmon, Tomato, Coral, OrangeRed, Chocolate, SandyBrown, DarkOrange, Orange, DarkGoldenrod, Goldenrod, Gold, Olive, Yellow, YellowGreen, GreenYellow, Chartreuse, LawnGreen, Green, Lime, LimeGreen, SpringGreen, MediumSpringGreen, Turquoise, LightSeaGreen, MediumTurquoise, Teal, DarkCyan, Aqua, Cyan, DarkTurquoise, DeepSkyBlue, DodgerBlue, RoyalBlue, Navy, DarkBlue, MediumBlue, Blue, BlueViolet, DarkOrchid, DarkViolet, Purple, DarkMagenta, Fuchsia, Magenta, MediumVioletRed, DeepPink, HotPink, Crimson, Brown, IndianRed, RosyBrown, LightCoral, Snow, MistyRose, DarkSalmon, LightSalmon, Sienna, SeaShell, SaddleBrown, Peachpuff, Peru, Linen, Bisque, Burlywood, Tan, AntiqueWhite, NavajoWhite, BlanchedAlmond, PapayaWhip, Moccasin, Wheat, Oldlace, FloralWhite, Cornsilk, Khaki, LemonChiffon, PaleGoldenrod, DarkKhaki, Beige, LightGoldenrodYellow, LightYellow, Ivory, OliveDrab, DarkOliveGreen, DarkSeaGreen, DarkGreen, ForestGreen, LightGreen, PaleGreen, Honeydew, SeaGreen, MediumSeaGreen, Mintcream, MediumAquamarine, Aquamarine, DarkSlateGray, PaleTurquoise, LightCyan, Azure, CadetBlue, PowderBlue, LightBlue, SkyBlue, LightskyBlue, SteelBlue, AliceBlue, SlateGray, LightSlateGray, LightsteelBlue, CornflowerBlue, Lavender, GhostWhite, MidnightBlue, SlateBlue, DarkSlateBlue, MediumSlateBlue, MediumPurple, Indigo, MediumOrchid, Plum, Violet, Thistle, Orchid, LavenderBlush, PaleVioletRed, Pink, LightPink, Black, DimGray, Gray, DarkGray, Silver, LightGrey, Gainsboro, WhiteSmoke, White}
 enum Borders{thin, medium, thick}
 
-// class gameColors    //таблица цветов для данной игры
-// {
-//     static N_COLOR:number=140;
-//     color:Colors[];   //массив цветов, соответствующих кнопкам (храним в виде чисел enum)
-
-//     constructor (N: number) {  //инициализация массива цветов (в случайном порядке; цвета берутся из типа Colors по близости)
-//         let randomColor:Colors = getRandomInt(0, gameColors.N_COLOR-1);
-//         if (N % 2)  
-//             throw new Error('Entered uneven count of buttons');
-//         let n:number=N/2;
-//         for (let i: number=0; i<n; i++){
-//             let index1, index2: number;
-//             index1 = this.getEmptyArrayIndex(N);   //случайным образом получаем индекс свободного элемента
-//             index2 = this.getEmptyArrayIndex(N);   //случайным образом получаем индекс свободного элемента
-//             this.color[index1]=randomColor;
-//             this.color[index2]=randomColor;
-//             randomColor=gameColors.getCloseColor(randomColor, 5);   //следующий случайный цвет ищется в радиусе 5 цветов
-//         }
-//    };
-
-//    getEmptyArrayIndex(N:number):number{ //получаем индекс случайного свободного элемента массива, размерностью N
-//        let index:number = getRandomInt(0, N-1);
-//        while (this.color[index]!=undefined){  //ищем индекс первого свободного элемента
-//            index = (index+1)%N;
-//        }
-//        return index;
-//    };
-
-//    static getCloseColor(Color:Colors, dis:number):Colors{   //Цвет, относительно которого ищем близкий, дисперсия(радиус поиска)
-//        let newRandomColor:Colors;
-//        let min,max:number;
-//        min = (Color - dis) < 0 ? 0 : (Color - dis);   //находим границы разброса нового случайного цвета
-//        max = (Color + dis) >= gameColors.N_COLOR ? gameColors.N_COLOR-1 : (Color + dis);
-//        newRandomColor = getRandomInt(min, max);
-//        return newRandomColor;
-//    };
-// }
-
 class gameColors    //таблица цветов для данной игры
 {
+    constructor(dis:number, n?:number ){
+        if ( n!=undefined )
+            if ( (n)>140 )
+                throw new Error("A lot of recuired colors.");
+        this.dis = dis;
+    }
     static N_COLOR:number=140;
-    color:Colors[];   //массив цветов, соответствующих кнопкам (храним в виде чисел enum)
+    usedColors:Colors[];    //цвета, которые уже были предоставлены функциями класса для таблицы
+    dis:number;     //разброс цветов для выбора следующего
 
-   static getCloseColor(Color:Colors, dis:number):Colors{   //Цвет, относительно которого ищем близкий, дисперсия(радиус поиска)
+    isColorUsed(color:Colors):boolean{
+    let n:number = this.usedColors.length;
+        for(let i=0; i<n; i++){
+            if (color==this.usedColors[i])
+                return true;
+        }
+        return false;
+    }
+
+    getUniqueCloseColor(color:Colors):Colors{
+        let newColor:Colors;
+        newColor = this.getCloseColor(color);  //получаем случайным образом цвет, лежащий в необходимом радиусе
+        if (this.isColorUsed(newColor)){            //если цвет использовался, ищем новый:
+            let newColorResult:Colors|undefined = this.getUncolissionColor(color);
+            if (newColorResult != undefined){
+                this.usedColors.push(newColorResult);
+            }
+            throw new Error('Reserved unique colors are over.');
+        }
+        return newColor;
+    }
+
+    getUncolissionColor(color:Colors):Colors|undefined{
+        let newColor:Colors|undefined = this.getClosestOriginalColor(color);
+            if ( newColor == undefined ){
+                newColor = this.getAnyAnotherColor(color);
+            }
+        return newColor;
+    }
+
+    getClosestOriginalColor(color:Colors):Colors|undefined{
+        let newColor:Colors|undefined = this.getClosestLeftOriginalColor(color);
+        if ( newColor == undefined ){
+            newColor = this.getClosestRightOriginalColor(color);
+        }
+        return undefined;
+    }
+
+    getAnyAnotherColor(color:Colors):Colors|undefined{
+        //ищем любой цвет "слева", начиная от минимального (самого левого по радиусу дисперсии)
+        let newColor:Colors|undefined = this.getAnyLeftOriginalColor( this.getMinCloseColor(color) );   
+        if ( newColor == undefined ){
+            newColor = this.getAnyRightOriginalColor( this.getMaxCloseColor(color) );
+        }
+        return undefined;
+    }
+
+    getAnyLeftOriginalColor(color:Colors):Colors|undefined{ 
+        for(let i:Colors=color; i>=0; i--){
+            if ( !this.isColorUsed(i) ){
+                return i;
+            }
+        }
+        return undefined;
+    }
+
+    getAnyRightOriginalColor(color:Colors):Colors|undefined{ 
+        for(let i:Colors=color; i<gameColors.N_COLOR; i++){
+            if ( !this.isColorUsed(i) ){
+                return i;
+            }
+        }
+        return undefined;
+    }
+
+    getClosestLeftOriginalColor(color:Colors):Colors|undefined{ 
+        let min:Colors = this.getMinCloseColor(color);
+        for(let i:Colors=color; i>=min; i--){
+            if ( !this.isColorUsed(i) ){
+                return i;
+            }
+        }
+        return undefined;
+    }
+
+    getClosestRightOriginalColor(color:Colors):Colors|undefined{ 
+        let max:Colors = this.getMaxCloseColor(color);
+        for(let i:Colors=color; i<=max; i++){
+            if ( !this.isColorUsed(i) ){
+                this.usedColors.push(i);
+                return i;
+            }
+        }
+        return undefined;
+    }
+
+    //функции, дающие в результате случайный неповторяющийся цвет:
+    getCloseColor(color:Colors):Colors{   //Цвет, относительно которого ищем близкий, дисперсия(радиус поиска)
        let newRandomColor:Colors;
-       let min,max:number;
-       min = (Color - dis) < 0 ? 0 : (Color - dis);   //находим границы разброса нового случайного цвета
-       max = (Color + dis) >= gameColors.N_COLOR ? gameColors.N_COLOR-1 : (Color + dis);
+       let min,max:Colors;
+       min = this.getMinCloseColor(color);   //находим границы разброса нового случайного цвета
+       max = this.getMaxCloseColor(color);
        newRandomColor = getRandomInt(min, max);
+       this.usedColors.push(newRandomColor);
        return newRandomColor;
-   };
+    };
+
+    getMinCloseColor(color:Colors):Colors{  //наиболее дальний слева цвет в радиусе dis
+        return (color - this.dis) < 0 ? 0 : (color - this.dis);   
+    }
+
+    getMaxCloseColor(color:Colors):Colors{    //наиболее дальний справа цвет в радиусе dis
+        return (color + this.dis) >= gameColors.N_COLOR ? gameColors.N_COLOR-1 : (color + this.dis);
+    }
+
+    getRandomColor():Colors{    //получение случайного цвета из таблицы цветов
+        let color:Colors = getRandomInt(0, gameColors.N_COLOR-1);
+        this.usedColors.push(color);
+        return color;
+    }
+
 }
 
-function initButtonColor (N: number):void{  //инициализация массива цветов (в случайном порядке; цвета берутся из типа Colors по близости)
-    let randomColor:Colors = getRandomInt(0, gameColors.N_COLOR-1);
-    if (N % 2)  
-        throw new Error('Entered uneven count of buttons');
-    let n:number=N/2;
-    for (let i: number=0; i<n; i++){
-        let index1, index2: number;
-        index1 = this.getEmptyArrayIndex(N);   //случайным образом получаем индекс свободного элемента
-        index2 = this.getEmptyArrayIndex(N);   //случайным образом получаем индекс свободного элемента
-        this.color[index1]=randomColor;
-        this.color[index2]=randomColor;
-        randomColor=gameColors.getCloseColor(randomColor, 5);   //следующий случайный цвет ищется в радиусе 5 цветов
-    }
+
 
 class gameButton{
     constructor(button: HTMLButtonElement, i:number){  
@@ -92,15 +153,18 @@ class gameButton{
         this.button.style.backgroundColor = 'white';  
         this.button.style.borderColor = 'black';
         this.button.style.borderWidth = Borders[0];
+        this.isOpen = false;
     }
 
-    setOpenStyle(colorTable:gameColors){     //Устанавливаем стиль "открытой кнопки" (в режиме ожидания выбора следующей кнопки)
-        this.button.style.backgroundColor = Colors[colorTable.color[this.i]];
+    setOpenStyle(){     //Устанавливаем стиль "открытой кнопки" (в режиме ожидания выбора следующей кнопки)
+        this.button.style.backgroundColor = Colors[this.color];
         this.button.style.borderWidth = Borders[2];
+        this.isOpen = true;
     }
 
     setFixedStyle(){      //Устанавливаем стиль "зафиксированной кнопки" (для угаданных кнопок)
         this.button.style.borderWidth = Borders[1];
+        this.isOpen = true;
     }
 
     addListener()
@@ -119,33 +183,54 @@ class gameButton{
 
 class gameStep
 {
-    static counter:number = 0;
-    static waitingAnswerButton:HTMLButtonElement;
+    static isTheFirst:boolean = false;    //логическая переменная: есть ли на поле открытая ячейка (первая), помимо выбранной
+    static waitingAnswerButton:gameButton;
     static colorTable:gameColors;
-    static initColorTable(table:gameColors):void {
-        gameStep.colorTable = table;
-    }
+
     static handleClick (elem: gameButton): void   //обработка клика по кнопке (элемент, хранящий кнопку и инф-ю о ней)
     {
-        if ( !gameStep.counter ){   //если это первый открытый элемент
-            elem.button.style.backgroundColor = Colors[gameStep.colorTable.color[elem.i]]; //берем цвет из массива цветов игры и присваиваем его элементу
-            elem.button.style.borderWidth = Borders[2];
-            gameStep.counter++;
+        elem.setOpenStyle();    //открываем элемент(кнопку)
+        if ( !gameStep.isTheFirst ){        //если это первый открытый элемент
+            this.waitingAnswerButton = elem;    //сохраняем его для дальнейшего сравнения
+            gameStep.isTheFirst = true;     
         }
-        gameStep.counter = 0;
-        elem.button.style.backgroundColor = 'yellow';
+        else{                               //если это второй открытый элемент, проверяем:
+            if (this.waitingAnswerButton.color == elem.color){  //если цвета совпадают, элементы фиксируются
+                this.waitingAnswerButton.setFixedStyle();       
+                elem.setFixedStyle();
+            }
+            else{                                               //если цвета различаются, то элементы закрываются через 3 секунды
+                setTimeout(() => {
+                    this.waitingAnswerButton.setClosedStyle();
+                    elem.setClosedStyle();},
+                    3000);
+            }
+            gameStep.isTheFirst = false;        //оба элемента были проверены, поэтому логическая переменная == false
+        }
     };
  
 }
 
-class gameField{    //класс, отвечающий за поле 
-    constructor(id:string, N:number) {
+class gameField{    //класс, отвечающий за поле (массив кнопок)
+    constructor(N:number, idButtons:string, idTimer:string, gameTime:number) {
         if (N % 2)  
             throw new Error('Entered uneven count of buttons');
-        this.id = id;
+        this.id = idButtons;
         this.N = N;
-        this.initButtonsArray();  //инициализируем массив кнопок    
-        this.initButtonColor();   //задаем кнопкам цвета
+        this.initButtonsArray();  //инициализируем массив кнопок 
+        try{
+            this.table = new gameColors(5, Math.floor(this.N/2));  //создаем таблицу используемых цветов 
+        }
+        catch(err){ //если количество цветов недостаточно => ошибка
+            throw err;
+        }
+        //try{
+            this.initButtonColor();   //задаем кнопкам цвета (по данному коду, всех цветов должно хватить)
+        // }
+        // catch(err){
+        //     throw err;
+        // }
+        this.timer = new timer(idTimer, gameTime);
     }
 
     initButtonsArray():void { //инициализация(заполнение) массива кнопок
@@ -156,43 +241,105 @@ class gameField{    //класс, отвечающий за поле
     }
 
     initButtonColor():void {
-        //инициализация массива цветов (в случайном порядке; цвета берутся из типа Colors по близости)
-        let randomColor:Colors = getRandomInt(0, gameColors.N_COLOR-1);
-        let n:number=N/2;
+        //инициализация поля "цвет" для каждой кнопки (цвета берутся в случайном порядке, по близости)
+        let randomColor:Colors = this.table.getRandomColor(); 
+        let n:number=Math.floor(this.N/2);
         for (let i: number=0; i<n; i++){
             let index1, index2: number;
             index1 = this.getEmptyArrayIndex();   //случайным образом получаем индекс двух свободных элементов
             index2 = this.getEmptyArrayIndex();  
-            this.button[index1].color=randomColor;  //в два свободных элемента помещаетс случайный цвет
+            this.button[index1].color=randomColor;  //в два свободных элемента помещается случайный цвет
             this.button[index2].color=randomColor;
-            randomColor=gameColors.getCloseColor(randomColor, 5);   //следующий случайный цвет ищется в радиусе 5 цветов
+            //try{
+                randomColor=this.table.getUniqueCloseColor(randomColor);   //следующий случайный цвет ищется в радиусе 5 цветов
+            //}
+            // catch(err){
+            //     throw err;
+            // };
         }
     }
 
     getEmptyArrayIndex():number{ //получаем индекс случайного свободного элемента массива, размерностью N
-        let index:number = getRandomInt(0, N-1);
+        let index:number = getRandomInt(0, this.N-1);
         while (this.button[index].color!=undefined){  //ищем индекс первого свободного элемента
-            index = (index+1)%N;
+            index = (index+1)%this.N;
         }
         return index;
     };
 
+    isWin():boolean{
+        this.button.forEach((element):any => {
+            if ( !element.isOpen )
+                return false;
+        });
+        return true;
+    }
 
     button: gameButton[];
     N: number;
-    id:string;
+    id: string; //идентификатор кнопок(начало строки до порядковых номеров)
+    table: gameColors;
+    timer: timer;
 }
 
+
+
+function endOfGame(field: gameField, id:string): void {
+    window.location.href="result.html";
+    let elem:HTMLElement = document.getElementById(id) as HTMLElement;
+    let answer:string;
+    if (field.isWin()){
+        answer = "Поздравляем, вы дизайнер!";
+    }
+    else{
+        answer = "Поздравляем, вы не дизайнер!";
+    }
+    elem.innerHTML = answer;
+}
+
+class timer{
+    constructor(id:string, seconds:number){
+        this.output = document.getElementById(id) as HTMLElement; //сохраняем элемент, куда будут выводиться значения таймера
+        this.remainTime = seconds;
+        this.startTimer();
+    }
+
+    startTimer():void{
+        // начать повторы с интервалом 1 сек
+        this.timerId = setInterval(this.timerIteration(), 1000);
+    }
+
+    timerIteration():void{
+        if ( !this.remainTime-- )   //если время вышло, завершаем таймер
+            this.finishTimer();
+        let sec:number = Math.floor(this.remainTime/60);    //получение минут и секунд
+        let min:number = this.remainTime%60;
+        this.output.innerHTML=min+': '+ (sec<10 ? '0'+sec :sec);    //сохранение данных таймера в виде строки
+    }
+
+    finishTimer():void{
+        clearInterval(this.timerId);
+    }
+
+    output: HTMLElement;
+    remainTime: number;
+    timerId: number;
+}
 
 
 function main():void {
+    let N:number = 20;
+    let gameTime:number = 180;
+    let field:gameField;
+    let time:number = 1000*60*3;
     try{
-        table = new gameColors(N) ;    //создание массива (размерность 20) используемых в игре цветов
+        field = new gameField(N, "button-", "timer", gameTime);
     }
     catch(err) {
-        console.log(err);
-        table = new gameColors(N+1) ;    //создание массива (размерность 20) используемых в игре цветов
+        console.log(err); 
+        return;
     }
-    gameStep.initColorTable(table);
-    initElements("button-", N);
+    setTimeout(endOfGame(field, 'answer'), time);
+
 }
+
