@@ -1,119 +1,133 @@
 //this.output.hidden=true;
 
-function getRandomInt(min:number, max:number):number
+function getRandomInt(min:number, max:number):number    //получение случайного целого числа
 {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+//Цвета, используемые в таблице цветов:
 enum Colors{Maroon, DarkRed, FireBrick, Red, Salmon, Tomato, Coral, OrangeRed, Chocolate, SandyBrown, DarkOrange, Orange, DarkGoldenrod, Goldenrod, Gold, Olive, Yellow, YellowGreen, GreenYellow, Chartreuse, LawnGreen, Green, Lime, LimeGreen, SpringGreen, MediumSpringGreen, Turquoise, LightSeaGreen, MediumTurquoise, Teal, DarkCyan, Aqua, Cyan, DarkTurquoise, DeepSkyBlue, DodgerBlue, RoyalBlue, Navy, DarkBlue, MediumBlue, Blue, BlueViolet, DarkOrchid, DarkViolet, Purple, DarkMagenta, Fuchsia, Magenta, MediumVioletRed, DeepPink, HotPink, Crimson, Brown, IndianRed, RosyBrown, LightCoral, Snow, MistyRose, DarkSalmon, LightSalmon, Sienna, SeaShell, SaddleBrown, Peachpuff, Peru, Linen, Bisque, Burlywood, Tan, AntiqueWhite, NavajoWhite, BlanchedAlmond, PapayaWhip, Moccasin, Wheat, Oldlace, FloralWhite, Cornsilk, Khaki, LemonChiffon, PaleGoldenrod, DarkKhaki, Beige, LightGoldenrodYellow, LightYellow, Ivory, OliveDrab, DarkOliveGreen, DarkSeaGreen, DarkGreen, ForestGreen, LightGreen, PaleGreen, Honeydew, SeaGreen, MediumSeaGreen, Mintcream, MediumAquamarine, Aquamarine, DarkSlateGray, PaleTurquoise, LightCyan, Azure, CadetBlue, PowderBlue, LightBlue, SkyBlue, LightskyBlue, SteelBlue, AliceBlue, SlateGray, LightSlateGray, LightsteelBlue, CornflowerBlue, Lavender, GhostWhite, MidnightBlue, SlateBlue, DarkSlateBlue, MediumSlateBlue, MediumPurple, Indigo, MediumOrchid, Plum, Violet, Thistle, Orchid, LavenderBlush, PaleVioletRed, Pink, LightPink, Black, DimGray, Gray, DarkGray, Silver, LightGrey, Gainsboro, WhiteSmoke, White}
+//Возможные варианты границ кнопок:
 enum Borders{thin, medium, thick}
 
 class gameColors    //таблица цветов для данной игры
 {
-    constructor(dis:number, n?:number ){
+    constructor(dis:number, n?:number ){    //(дисперсия - разброс поиска ближайшего цвета, количество цветов)
         if ( n!=undefined )
-            if ( (n)>140 )
-                throw new Error("A lot of recuired colors.");
+            if ( n > gameColors.N_COLOR )
+                throw new Error("A lot of recuired colors.");   //сообщает о невозможности предоставления такого количества цветов
         this.dis = dis;
     }
     static N_COLOR:number=140;
-    usedColors:Colors[];    //цвета, которые уже были предоставлены функциями класса для таблицы
+    usedColors:Colors[];    //массив цветов, которые уже были предоставлены функциями класса для таблицы
     dis:number;     //разброс цветов для выбора следующего
 
-    isColorUsed(color:Colors):boolean{
+    isColorUsed(color:Colors):boolean{      //проверка, использовался ли цвет до этого
     let n:number = this.usedColors.length;
         for(let i=0; i<n; i++){
-            if (color==this.usedColors[i])
+            if (color==this.usedColors[i])  //если обнаружено совпадение с ранее используемыми => true (иначе false)
                 return true;
         }
         return false;
     }
 
-    getUniqueCloseColor(color:Colors):Colors{
+    //Получение "уникального" (ранее не используемого) ближайшего цвета (сначала ищет в радиусе потом по мере отдаления)
+    //вх., тут и далее: цвет относительно которого ищем новый
+    getUniqueClosestColor(color:Colors):Colors{   
         let newColor:Colors;
         newColor = this.getCloseColor(color);  //получаем случайным образом цвет, лежащий в необходимом радиусе
         if (this.isColorUsed(newColor)){            //если цвет использовался, ищем новый:
-            let newColorResult:Colors|undefined = this.getUncolissionColor(color);
+            let newColorResult:Colors|undefined = this.getUncolissionColor(color);  //поиск ближайшего незанятого цвета среди всех
             if (newColorResult != undefined){
-                this.usedColors.push(newColorResult);
+                newColor = newColorResult;              //если цвет был найден, запоминаем его
             }
-            throw new Error('Reserved unique colors are over.');
+            else{
+                throw new Error('Reserved unique colors are over.');    //если цвет не был найден сообщаем об ошибке
+            }
         }
-        return newColor;
+        this.usedColors.push(newColor);   //найденный цвет помещаем в массив используемых цветов
+        return newColor;            //возвращаем цвет
     }
 
-    getUncolissionColor(color:Colors):Colors|undefined{
-        let newColor:Colors|undefined = this.getClosestOriginalColor(color);
+    //Поиск любого "неконфликтующего"/неповторяющегося цвета:
+    getUncolissionColor(color:Colors):Colors|undefined{ 
+        let newColor:Colors|undefined = this.getClosestOriginalColor(color);    //ищем цвет в необходимом радиусе
             if ( newColor == undefined ){
-                newColor = this.getAnyAnotherColor(color);
+                newColor = this.getAnyAnotherColor(color);  //если он не найден ищем его по всей таблице по мере отдаления от точки поиска
             }
-        return newColor;
+        return newColor;    //возвращаем найденный цвет или undefined
     }
 
+    //поиск ближайшего неповторимого цвета:
     getClosestOriginalColor(color:Colors):Colors|undefined{
-        let newColor:Colors|undefined = this.getClosestLeftOriginalColor(color);
+        let newColor:Colors|undefined = this.getClosestLeftOriginalColor(color);    //ищем ближайший цвет в радиусе слева
         if ( newColor == undefined ){
-            newColor = this.getClosestRightOriginalColor(color);
+            newColor = this.getClosestRightOriginalColor(color);     //если он не найден, ищем ближайший цвет в радиусе справа
         }
-        return undefined;
+        return newColor;    //возвращаем найденный цвет или undefined
     }
 
-    getAnyAnotherColor(color:Colors):Colors|undefined{
-        //ищем любой цвет "слева", начиная от минимального (самого левого по радиусу дисперсии)
-        let newColor:Colors|undefined = this.getAnyLeftOriginalColor( this.getMinCloseColor(color) );   
-        if ( newColor == undefined ){
-            newColor = this.getAnyRightOriginalColor( this.getMaxCloseColor(color) );
-        }
-        return undefined;
-    }
-
-    getAnyLeftOriginalColor(color:Colors):Colors|undefined{ 
-        for(let i:Colors=color; i>=0; i--){
-            if ( !this.isColorUsed(i) ){
-                return i;
-            }
-        }
-        return undefined;
-    }
-
-    getAnyRightOriginalColor(color:Colors):Colors|undefined{ 
-        for(let i:Colors=color; i<gameColors.N_COLOR; i++){
-            if ( !this.isColorUsed(i) ){
-                return i;
-            }
-        }
-        return undefined;
-    }
-
+    //поиск слева ближайшего неповторимого цвета в радиусе дисперсии:
     getClosestLeftOriginalColor(color:Colors):Colors|undefined{ 
         let min:Colors = this.getMinCloseColor(color);
-        for(let i:Colors=color; i>=min; i--){
+        for(let i:Colors=color; i>=min; i--){   //начиная от текущего идем влево
             if ( !this.isColorUsed(i) ){
-                return i;
+                return i;                       //если найден неиспользуемый цвет возвращаем его
             }
         }
-        return undefined;
+        return undefined;               //если цвет не найден => undefined
     }
 
+    //поиск справа ближайшего неповторимого цвета в радиусе дисперсии:
     getClosestRightOriginalColor(color:Colors):Colors|undefined{ 
         let max:Colors = this.getMaxCloseColor(color);
-        for(let i:Colors=color; i<=max; i++){
+        for(let i:Colors=color; i<=max; i++){   //начиная от текущего идем вправо
             if ( !this.isColorUsed(i) ){
-                this.usedColors.push(i);
+                return i;                       //если найден неиспользуемый цвет возвращаем его
+            }
+        }
+        return undefined;//если цвет не найден => undefined
+    }
+
+
+    //ищем любой цвет, начиная от радиуса дисперсии:
+    getAnyAnotherColor(color:Colors):Colors|undefined{
+        let newColor:Colors|undefined = this.getAnyLeftOriginalColor( this.getMinCloseColor(color) );  //ищем цвет слева по таблице
+        if ( newColor == undefined ){
+            newColor = this.getAnyRightOriginalColor( this.getMaxCloseColor(color) );   //ищем цвет справа по таблице
+        }
+        return newColor;    //возвращаем найденный цвет или undefined
+    }
+
+    //поиск любого неповторяющегося цвета слева по таблице от входной точки
+    getAnyLeftOriginalColor(color:Colors):Colors|undefined{ 
+        for(let i:Colors=color; i>=0; i--){
+            if ( !this.isColorUsed(i) ){    //если найден неиспользуемый цвет => его
                 return i;
             }
         }
-        return undefined;
+        return undefined;   //иначе => undefined
     }
 
-    //функции, дающие в результате случайный неповторяющийся цвет:
+    //поиск любого неповторяющегося цвета справа по таблице от входной точки
+    getAnyRightOriginalColor(color:Colors):Colors|undefined{ 
+        for(let i:Colors=color; i<gameColors.N_COLOR; i++){
+            if ( !this.isColorUsed(i) ){    //если найден неиспользуемый цвет => его
+                return i;
+            }
+        }
+        return undefined;    //иначе => undefined
+    }
+
+
+    //выбор случайным образом близкого цвета в радиусе дисперсии:
     getCloseColor(color:Colors):Colors{   //Цвет, относительно которого ищем близкий, дисперсия(радиус поиска)
        let newRandomColor:Colors;
        let min,max:Colors;
        min = this.getMinCloseColor(color);   //находим границы разброса нового случайного цвета
        max = this.getMaxCloseColor(color);
-       newRandomColor = getRandomInt(min, max);
-       this.usedColors.push(newRandomColor);
+       newRandomColor = getRandomInt(min, max); //новый случайный цвет берется из этих границ
+       this.usedColors.push(newRandomColor);    //сохранение цвета в массив используемых цветов
        return newRandomColor;
     };
 
@@ -127,7 +141,7 @@ class gameColors    //таблица цветов для данной игры
 
     getRandomColor():Colors{    //получение случайного цвета из таблицы цветов
         let color:Colors = getRandomInt(0, gameColors.N_COLOR-1);
-        this.usedColors.push(color);
+        this.usedColors.push(color);    //сохранение цвета в массив используемых цветов
         return color;
     }
 
@@ -135,17 +149,18 @@ class gameColors    //таблица цветов для данной игры
 
 
 
+//класс кнопки (используемой на поле)
 class gameButton{
     constructor(button: HTMLButtonElement, i:number){  
         //конструктор для инициализации объекта кнопки, ее индекса, показателя открытости кнопки
         this.button = button;
         this.i = i;
-        this.isOpen = false;
+        this.isOpen = false;    
         this.setClosedStyle();
     }
     i:number; //порядковый номер кнопки (начиная от 0)
-    button:HTMLButtonElement;
-    isOpen:boolean; //кнопка открыта/зафискирована
+    button:HTMLButtonElement;   //соответствующий элмент html
+    isOpen:boolean; //is кнопка открыта/зафискирована
     color: Colors;
 
     setClosedStyle(){   //Устанавливаем стиль "закрытой кнопки" (невскрытая кнопка/иконка)
@@ -161,30 +176,31 @@ class gameButton{
         this.isOpen = true;
     }
 
-    setFixedStyle(){      //Устанавливаем стиль "зафиксированной кнопки" (для угаданных кнопок)
+    //Устанавливаем стиль "зафиксированной кнопки" (для угаданных кнопок) - всегда вызывается после setOpenStyle()
+    setFixedStyle(){      
         this.button.style.borderWidth = Borders[1];
-        this.isOpen = true;
     }
 
 }
 
+//класс хода игры
 class gameCourse
 {
     constructor(field: gameField, time:number, idResult: string){
         this.field = field;
-        this.closedButtonsPairs = field.N;
+        this.closedButtonsPairs = Math.floor(field.N/2);
         this.idResult = idResult;
         this.addButtonsListeners(field);
         this.timer = setTimeout(this.endOfGame(), time*1000);
     }
 
 
-    field:gameField;
+    field:gameField;    //игровое поле, над которым идет управление
     isTheFirst:boolean = false;    //логическая переменная: есть ли на поле открытая ячейка (первая), помимо выбранной
-    waitingAnswerButton:gameButton;
-    closedButtonsPairs:number;
-    idResult: string;
-    timer:number;
+    waitingAnswerButton:gameButton;     //кнопка, ждущая ответа (первая выбранная)
+    closedButtonsPairs:number;          //количество зафиксированных (угаданных) пар
+    idResult: string;               //id класса HTML для вывода результата игры
+    timer:number;                   //идентификатор таймера
 
     addButtonsListeners(buttonField: gameField):void    //добавление слушателя событмия на каждую кнопку
     {
@@ -214,7 +230,7 @@ class gameCourse
                 elem.setFixedStyle();
                 this.closedButtonsPairs--;
             }
-            else{                                               //если цвета различаются, то элементы закрываются через 3 секунды
+            else{                          //если цвета различаются, то элементы закрываются через 3 секунды
                 setTimeout(() => {
                     this.waitingAnswerButton.setClosedStyle();
                     elem.setClosedStyle();},
@@ -222,41 +238,44 @@ class gameCourse
             }
             this.isTheFirst = false;        //оба элемента были проверены, поэтому логическая переменная == false
         }
-        if ( !this.closedButtonsPairs )
+        if ( !this.closedButtonsPairs )     //если все кнопки открыты (не осталось закрытых пар)
         {
-            clearTimeout(this.timer);
-            this.endOfGame();
+            clearTimeout(this.timer);       //вырубаем счетчик/таймер
+            this.endOfGame();               //заканчиваем игру
         }
             
     };
     
+    //окончание игры:
     endOfGame(): void {
-        window.location.href="result.html";
+        window.location.href="result.html";     //переходим на страницу с результатом:
         let elem:HTMLElement = document.getElementById(this.idResult) as HTMLElement;
-        let answer:string;
-        if ( !this.closedButtonsPairs ){
+        let answer:string;                      //сообщение о результате игры
+        if ( !this.closedButtonsPairs ){        //если все кнопки вскрыты - победа
             answer = "Поздравляем, вы дизайнер!";
         }
-        else{
+        else{                                   //иначе - проигрыш
             answer = "Поздравляем, вы не дизайнер!";
         }
-        elem.innerHTML = answer;
+        elem.innerHTML = answer;    //помещаем информацию на страницу
     }
     
     
 }
 
-class gameField{    //класс, отвечающий за поле (массив кнопок)
+    //класс, отвечающий за поле (массив кнопок)
+class gameField{
     constructor(m:number, n:number, idField:string, idButtons:string) {
         this.m = m;
         this.n = n;
         let N = m*n;
         if (N % 2)  
             throw new Error('Entered uneven count of buttons');
-        this.formingField(m, n, idField, idButtons);
-        this.id = idButtons;
+
+        this.idButtons = idButtons;
+        this.formingField(idField);
         this.N = N;
-        this.initButtonsArray();  //инициализируем массив кнопок 
+        this.initButtonsArray();  //инициализируем массив кнопок (сторого после формирования поля!)
         try{
             this.table = new gameColors(5, Math.floor(this.N/2));  //создаем таблицу используемых цветов 
         }
@@ -271,31 +290,32 @@ class gameField{    //класс, отвечающий за поле (масси
         // }
     }
 
-    button: gameButton[];
-    m:number;
-    n:number;
-    N: number;
-    id: string; //идентификатор кнопок(начало строки до порядковых номеров)
-    table: gameColors;
+    button: gameButton[];   //массив объектов кнопок
+    m:number;       //количество строк
+    n:number;       //количество стоблцов
+    N: number;      //количесвто элементов
+    idButtons: string; //идентификатор кнопок(начало строки до порядковых номеров)
+    table: gameColors;  //таблица цветов
 
-    formingField(m:number, n:number, idField:string, idButtons:string):void{    //формирование поля игры
+    formingField(idField:string):void{    //формирование поля игры
         let field:HTMLDivElement = document.getElementById(idField) as HTMLDivElement;
-        let htmlField:string = '';
-        for( let i:number = 0; i<n; i++ ){ 
+        let htmlField:string = '';  //переменная под содержимое HTML-кода для создания поля / набора кнопок
+        for( let i:number = 0; i<this.m; i++ ){ 
             let htmlButtons:string='';
-            for( let j:number = 0; j<m; j++)
+            for( let j:number = 0; j<this.n; j++)   //для каждого столбца прописываем тег для кнопки с заданным id
             {
-                htmlButtons = `\t<button id="${idButtons}${i}"></button>\n`;
+                htmlButtons = `\t<button id="${this.idButtons}${i}"></button>\n`;
             }
-            htmlButtons += '<br>'; 
-            htmlField += htmlButtons;
+            htmlButtons += '<br>';         //в конце каждой строки ставим тег перехода, для читаемости кода
+            htmlField += htmlButtons;       //добавляем к результату
         }
-        field.innerHTML = htmlField;
+        field.innerHTML = htmlField;    //вставляем код в файл
     }
 
     initButtonsArray():void { //инициализация(заполнение) массива кнопок
         for (let i:number=0; i<this.N; i++){
-            let elem:gameButton = new gameButton(document.getElementById(this.id+i) as HTMLButtonElement, i);  
+            //получаем объекты кнопок 
+            let elem:gameButton = new gameButton(document.getElementById(this.idButtons+i) as HTMLButtonElement, i);  
             this.button.push(elem);
         }
     }
@@ -305,13 +325,18 @@ class gameField{    //класс, отвечающий за поле (масси
         let randomColor:Colors = this.table.getRandomColor(); 
         let n:number=Math.floor(this.N/2);
         for (let i: number=0; i<n; i++){
-            let index1, index2: number;
+            let index1, index2: number|undefined;
             index1 = this.getEmptyArrayIndex();   //случайным образом получаем индекс двух свободных элементов
             index2 = this.getEmptyArrayIndex();  
-            this.button[index1].color=randomColor;  //в два свободных элемента помещается случайный цвет
-            this.button[index2].color=randomColor;
+            if (index1!=undefined && index2!=undefined){    //если вернулись индексы 
+                this.button[index1].color=randomColor;  //в два свободных элемента помещается случайный цвет
+                this.button[index2].color=randomColor;
+            }
+            else{
+                break;  //если пустых элементов больше нет, то прерываем цикл
+            }
             //try{
-                randomColor=this.table.getUniqueCloseColor(randomColor);   //следующий случайный цвет ищется в радиусе 5 цветов
+                randomColor=this.table.getUniqueClosestColor(randomColor);   //следующий случайный цвет ищется в радиусе 5 цветов
             //}
             // catch(err){
             //     throw err;
@@ -319,14 +344,20 @@ class gameField{    //класс, отвечающий за поле (масси
         }
     }
 
-    getEmptyArrayIndex():number{ //получаем индекс случайного свободного элемента массива, размерностью N
-        let index:number = getRandomInt(0, this.N-1);
-        while (this.button[index].color!=undefined){  //ищем индекс первого свободного элемента
+    //получение индекс случайного свободного элемента массива, размерностью N (для случайного задания цветов)
+    getEmptyArrayIndex():number|undefined{ 
+        let index:number = getRandomInt(0, this.N-1);   //выбираем случайным образом элемент
+        let i=0;
+        //пока выбранный элемент не будет пуст, идем вправо и по кругу (по массиву) в поисках нового:
+        while (this.button[index].color!=undefined){  
             index = (index+1)%this.N;
+            if (++i == this.N)
+                return undefined;
         }
-        return index;
+        return index;   //возвращаем индекс найденного элемента
     };
 
+    //проверка, все ли кнопки вскрыты:
     isFixedAll():boolean{
         this.button.forEach((element):any => {
             if ( !element.isOpen )
@@ -339,26 +370,27 @@ class gameField{    //класс, отвечающий за поле (масси
 
 
 
-
+//класс таймера:
 class timer{
 
     constructor(id:string, seconds:number){
         this.output = document.getElementById(id) as HTMLElement; //сохраняем элемент, куда будут выводиться значения таймера
-        this.reserve = this.remainTime = seconds;
-        this.startTimer();
+        this.reserve = this.remainTime = seconds;   
+        this.startTimer(); 
     }
 
-    output: HTMLElement;
-    remainTime: number;
-    timerId: number;
-    reserve:number;
+    output: HTMLElement;    //элементHTML, куда будут выводиться значения таймера
+    remainTime: number;     //оставшееся время работы в секундах
+    timerId: number;        //идентификатор таймера (интервального)
+    reserve:number;         //изначальный временной интервал (в секундах)
 
-    startTimer():void{
+    startTimer():void{  //запуск таймера
         // начать повторы с интервалом 1 сек
         this.timerId = setInterval(this.timerIteration(), 1000);
     }
 
-    timerIteration():boolean{   //возвращаем информацию о том, вышло ли время работы таймера
+    //итерация таймера, возвращат информацию о том, вышло ли время работы таймера
+    timerIteration():boolean{
         if ( !this.remainTime-- )   //если время вышло, завершаем таймер (постфикс -> показываем последние цифры: 00:00)
         {
             this.finishTimer();
@@ -366,10 +398,12 @@ class timer{
         }  
         let sec:number = Math.floor(this.remainTime/60);    //получение минут и секунд
         let min:number = this.remainTime%60;
-        this.output.innerHTML=`<p>${min}: ${(sec<10 ? '0'+sec :sec)}</p>`;    //аналогично: '<p>'+min+': '+ (sec<10 ? '0'+sec :sec)+'</p>'
+        //вывод в HTML, аналогично: '<p>'+min+': '+ (sec<10 ? '0'+sec :sec)+'</p>'
+        this.output.innerHTML=`<p>${min}: ${(sec<10 ? '0'+sec :sec)}</p>`;    
         return false;
     }
 
+    //завершение таймера
     finishTimer():void{
         clearInterval(this.timerId);
         this.remainTime = 0;
@@ -378,25 +412,30 @@ class timer{
 
 
 
-
+//основной код
 function main():void {
-    let M:number = 4;
-    let N:number = 5;
-    let gameTime:number = 3*60;
-    let field:gameField;
+
+    let M:number = 5;   //строки
+    let N:number = 4;   //столбцы
+    let gameTime:number = 3*60; //время игры
+    let field:gameField;    //игровое поле
+
+    //идентификаторы HTML-элементов:
     let htmlIdField = "buttons";
     let htmlIdButtons = "button-";
     let htmlIdTimer = "timer";
     let htmlIdResult = "result";
+
     try{
         field = new gameField(M, N, htmlIdField, htmlIdButtons);
     }
-    catch(err) {
+    catch(err) {        //если поле не было создано из-за ошибки, передаем подходящие параметры
+        field = new gameField(5, 4, "buttons", "button-");
         console.log(err); 
-        return;
     }
-    let gameTimer:timer = new timer(htmlIdTimer, gameTime);
+
     let game:gameCourse = new gameCourse(field, gameTime, htmlIdResult);
+    let gameTimer:timer = new timer(htmlIdTimer, gameTime);
 
 }
 
