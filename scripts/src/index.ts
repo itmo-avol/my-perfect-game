@@ -142,7 +142,6 @@ class gameButton{
         this.i = i;
         this.isOpen = false;
         this.setClosedStyle();
-        this.addListener();
     }
     i:number; //порядковый номер кнопки (начиная от 0)
     button:HTMLButtonElement;
@@ -167,37 +166,53 @@ class gameButton{
         this.isOpen = true;
     }
 
-    addListener()
-    {
-        this.button.addEventListener( 'click', (event: Event): void =>    //вешаем слушатель события 'click'
-        {
-            if (event != undefined) //если пользователь кликнул
-            {   
-                if ( !this.isOpen )     // если кнопка закрыта
-                    gameStep.handleClick(this); // вызывается функция обработки хода игры
-            }
-        } );
-    }
-    
 }
 
-class gameStep
+class gameCourse
 {
-    static isTheFirst:boolean = false;    //логическая переменная: есть ли на поле открытая ячейка (первая), помимо выбранной
-    static waitingAnswerButton:gameButton;
-    static colorTable:gameColors;
+    constructor(field: gameField, time:number, idResult: string){
+        this.field = field;
+        this.closedButtonsPairs = field.N;
+        this.idResult = idResult;
+        this.addButtonsListeners(field);
+        this.timer = setTimeout(this.endOfGame(), time*1000);
+    }
 
-    static handleClick (elem: gameButton): void   //обработка клика по кнопке (элемент, хранящий кнопку и инф-ю о ней)
+
+    field:gameField;
+    isTheFirst:boolean = false;    //логическая переменная: есть ли на поле открытая ячейка (первая), помимо выбранной
+    waitingAnswerButton:gameButton;
+    closedButtonsPairs:number;
+    idResult: string;
+    timer:number;
+
+    addButtonsListeners(buttonField: gameField):void    //добавление слушателя событмия на каждую кнопку
+    {
+        buttonField.button.forEach(item => (    //на HtML-кнопки каждого объекта класса gameButton вешаем обработчик события
+            item.button.addEventListener ('click', (event: Event): void =>    //вешаем слушатель события 'click'
+            {
+                if (event != undefined) //если пользователь кликнул
+                {   
+                    if ( !item.isOpen )     // если кнопка закрыта
+                        this.handleClick(item); // вызывается функция обработки хода игры
+                }
+            })
+        )
+        );
+    }
+
+    handleClick (elem: gameButton): void   //обработка клика по кнопке (элемент, хранящий кнопку и инф-ю о ней)
     {
         elem.setOpenStyle();    //открываем элемент(кнопку)
-        if ( !gameStep.isTheFirst ){        //если это первый открытый элемент
+        if ( !this.isTheFirst ){        //если это первый открытый элемент
             this.waitingAnswerButton = elem;    //сохраняем его для дальнейшего сравнения
-            gameStep.isTheFirst = true;     
+            this.isTheFirst = true;     
         }
         else{                               //если это второй открытый элемент, проверяем:
             if (this.waitingAnswerButton.color == elem.color){  //если цвета совпадают, элементы фиксируются
                 this.waitingAnswerButton.setFixedStyle();       
                 elem.setFixedStyle();
+                this.closedButtonsPairs--;
             }
             else{                                               //если цвета различаются, то элементы закрываются через 3 секунды
                 setTimeout(() => {
@@ -205,14 +220,36 @@ class gameStep
                     elem.setClosedStyle();},
                     3000);
             }
-            gameStep.isTheFirst = false;        //оба элемента были проверены, поэтому логическая переменная == false
+            this.isTheFirst = false;        //оба элемента были проверены, поэтому логическая переменная == false
         }
+        if ( !this.closedButtonsPairs )
+        {
+            clearTimeout(this.timer);
+            this.endOfGame();
+        }
+            
     };
- 
+    
+    endOfGame(): void {
+        window.location.href="result.html";
+        let elem:HTMLElement = document.getElementById(this.idResult) as HTMLElement;
+        let answer:string;
+        if ( !this.closedButtonsPairs ){
+            answer = "Поздравляем, вы дизайнер!";
+        }
+        else{
+            answer = "Поздравляем, вы не дизайнер!";
+        }
+        elem.innerHTML = answer;
+    }
+    
+    
 }
 
 class gameField{    //класс, отвечающий за поле (массив кнопок)
-    constructor(m:number, n:number, idField:string, idButtons:string, idTimer:string, gameTime:number) {
+    constructor(m:number, n:number, idField:string, idButtons:string) {
+        this.m = m;
+        this.n = n;
         let N = m*n;
         if (N % 2)  
             throw new Error('Entered uneven count of buttons');
@@ -232,8 +269,14 @@ class gameField{    //класс, отвечающий за поле (масси
         // catch(err){
         //     throw err;
         // }
-        this.timer = new timer(idTimer, gameTime);
     }
+
+    button: gameButton[];
+    m:number;
+    n:number;
+    N: number;
+    id: string; //идентификатор кнопок(начало строки до порядковых номеров)
+    table: gameColors;
 
     formingField(m:number, n:number, idField:string, idButtons:string):void{    //формирование поля игры
         let field:HTMLDivElement = document.getElementById(idField) as HTMLDivElement;
@@ -252,7 +295,7 @@ class gameField{    //класс, отвечающий за поле (масси
 
     initButtonsArray():void { //инициализация(заполнение) массива кнопок
         for (let i:number=0; i<this.N; i++){
-            let elem:gameButton = new gameButton(document.getElementById(this.id+i) as HTMLButtonElement, i);    
+            let elem:gameButton = new gameButton(document.getElementById(this.id+i) as HTMLButtonElement, i);  
             this.button.push(elem);
         }
     }
@@ -284,63 +327,53 @@ class gameField{    //класс, отвечающий за поле (масси
         return index;
     };
 
-    isWin():boolean{
+    isFixedAll():boolean{
         this.button.forEach((element):any => {
             if ( !element.isOpen )
                 return false;
         });
         return true;
     }
-
-    button: gameButton[];
-    N: number;
-    id: string; //идентификатор кнопок(начало строки до порядковых номеров)
-    table: gameColors;
-    timer: timer;
 }
 
 
 
-function endOfGame(field: gameField, id:string): void {
-    window.location.href="result.html";
-    let elem:HTMLElement = document.getElementById(id) as HTMLElement;
-    let answer:string;
-    if (field.isWin()){
-        answer = "Поздравляем, вы дизайнер!";
-    }
-    else{
-        answer = "Поздравляем, вы не дизайнер!";
-    }
-    elem.innerHTML = answer;
-}
+
 
 class timer{
+
     constructor(id:string, seconds:number){
         this.output = document.getElementById(id) as HTMLElement; //сохраняем элемент, куда будут выводиться значения таймера
-        this.remainTime = seconds;
+        this.reserve = this.remainTime = seconds;
         this.startTimer();
     }
+
+    output: HTMLElement;
+    remainTime: number;
+    timerId: number;
+    reserve:number;
 
     startTimer():void{
         // начать повторы с интервалом 1 сек
         this.timerId = setInterval(this.timerIteration(), 1000);
     }
 
-    timerIteration():void{
-        if ( !this.remainTime-- )   //если время вышло, завершаем таймер
+    timerIteration():boolean{   //возвращаем информацию о том, вышло ли время работы таймера
+        if ( !this.remainTime-- )   //если время вышло, завершаем таймер (постфикс -> показываем последние цифры: 00:00)
+        {
             this.finishTimer();
+            return true;
+        }  
         let sec:number = Math.floor(this.remainTime/60);    //получение минут и секунд
         let min:number = this.remainTime%60;
         this.output.innerHTML=`<p>${min}: ${(sec<10 ? '0'+sec :sec)}</p>`;    //аналогично: '<p>'+min+': '+ (sec<10 ? '0'+sec :sec)+'</p>'
+        return false;
     }
 
     finishTimer():void{
         clearInterval(this.timerId);
+        this.remainTime = 0;
     }
-
-    output: HTMLElement;
-    remainTime: number;
-    timerId: number;
 }
 
 
@@ -349,20 +382,21 @@ class timer{
 function main():void {
     let M:number = 4;
     let N:number = 5;
-    let gameTime:number = 180;
+    let gameTime:number = 3*60;
     let field:gameField;
-    let time:number = 1000*60*3;    //3 минуты
     let htmlIdField = "buttons";
     let htmlIdButtons = "button-";
     let htmlIdTimer = "timer";
+    let htmlIdResult = "result";
     try{
-        field = new gameField(M, N, htmlIdField, htmlIdButtons, htmlIdTimer, gameTime);
+        field = new gameField(M, N, htmlIdField, htmlIdButtons);
     }
     catch(err) {
         console.log(err); 
         return;
     }
-    setTimeout(endOfGame(field, 'answer'), time);
+    let gameTimer:timer = new timer(htmlIdTimer, gameTime);
+    let game:gameCourse = new gameCourse(field, gameTime, htmlIdResult);
 
 }
 
