@@ -1,4 +1,3 @@
-//this.output.hidden=true;
 
 function getRandomInt(min:number, max:number):number    //получение случайного целого числа
 {
@@ -202,6 +201,7 @@ class gameCourse
     idResult: string;               //id класса HTML для вывода результата игры
     timer:number;                   //идентификатор таймера
 
+
     addButtonsListeners(buttonField: gameField):void    //добавление слушателя событмия на каждую кнопку
     {
         buttonField.button.forEach(item => (    //на HtML-кнопки каждого объекта класса gameButton вешаем обработчик события
@@ -252,13 +252,14 @@ class gameCourse
         let elem:HTMLElement = document.getElementById(this.idResult) as HTMLElement;
         let answer:string;                      //сообщение о результате игры
         if ( !this.closedButtonsPairs ){        //если все кнопки вскрыты - победа
-            answer = "Поздравляем, вы дизайнер!";
+            answer = "<p> Вы дизайнер! </p>";
         }
         else{                                   //иначе - проигрыш
-            answer = "Поздравляем, вы не дизайнер!";
+            answer = "<p> Вы не дизайнер! </p>";
         }
         elem.innerHTML = answer;    //помещаем информацию на страницу
     }
+
     
     
 }
@@ -304,9 +305,10 @@ class gameField{
             let htmlButtons:string='';
             for( let j:number = 0; j<this.n; j++)   //для каждого столбца прописываем тег для кнопки с заданным id
             {
-                htmlButtons = `\t<button id="${this.idButtons}${i}"></button>\n`;
+                htmlButtons = `\t<button id="${this.idButtons}${i}" class="button"></button>\n`;
             }
-            htmlButtons += '<br>';         //в конце каждой строки ставим тег перехода, для читаемости кода
+            htmlButtons += '<br>';         //в конце каждой строки ставим тег перехода на новую строку 
+            //htmlButtons += (i != this.m-1) ?'<br>':'';         //в конце каждой строки ставим тег перехода на новую строку 
             htmlField += htmlButtons;       //добавляем к результату
         }
         field.innerHTML = htmlField;    //вставляем код в файл
@@ -410,10 +412,24 @@ class timer{
     }
 }
 
+//инициализация кнопки начала игры
+function initGameButton(id:string):void{
+
+    let startButton: HTMLButtonElement = document.getElementById(id) as HTMLButtonElement; 
+
+    startButton.addEventListener ('click', (event: Event): void =>    //вешаем слушатель события 'click'
+        {
+            if (event != undefined) //если пользователь кликнул
+            {   
+                startButton.hidden=true;    //скрываем кнопку и запускаем игру
+                game();
+            }
+        }); 
+}
 
 
 //основной код
-function main():void {
+function game():void {
 
     let M:number = 5;   //строки
     let N:number = 4;   //столбцы
@@ -437,5 +453,10 @@ function main():void {
     let game:gameCourse = new gameCourse(field, gameTime, htmlIdResult);
     let gameTimer:timer = new timer(htmlIdTimer, gameTime);
 
+}
+
+function main():void
+{
+    initGameButton('start');
 }
 
