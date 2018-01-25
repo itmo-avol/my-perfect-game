@@ -212,9 +212,11 @@ class gameStep
 }
 
 class gameField{    //класс, отвечающий за поле (массив кнопок)
-    constructor(N:number, idButtons:string, idTimer:string, gameTime:number) {
+    constructor(m:number, n:number, idField:string, idButtons:string, idTimer:string, gameTime:number) {
+        let N = m*n;
         if (N % 2)  
             throw new Error('Entered uneven count of buttons');
+        this.formingField(m, n, idField, idButtons);
         this.id = idButtons;
         this.N = N;
         this.initButtonsArray();  //инициализируем массив кнопок 
@@ -231,6 +233,21 @@ class gameField{    //класс, отвечающий за поле (масси
         //     throw err;
         // }
         this.timer = new timer(idTimer, gameTime);
+    }
+
+    formingField(m:number, n:number, idField:string, idButtons:string):void{    //формирование поля игры
+        let field:HTMLDivElement = document.getElementById(idField) as HTMLDivElement;
+        let htmlField:string = '';
+        for( let i:number = 0; i<n; i++ ){ 
+            let htmlButtons:string='';
+            for( let j:number = 0; j<m; j++)
+            {
+                htmlButtons = `\t<button id="${idButtons}${i}"></button>\n`;
+            }
+            htmlButtons += '<br>'; 
+            htmlField += htmlButtons;
+        }
+        field.innerHTML = htmlField;
     }
 
     initButtonsArray():void { //инициализация(заполнение) массива кнопок
@@ -314,7 +331,7 @@ class timer{
             this.finishTimer();
         let sec:number = Math.floor(this.remainTime/60);    //получение минут и секунд
         let min:number = this.remainTime%60;
-        this.output.innerHTML=min+': '+ (sec<10 ? '0'+sec :sec);    //сохранение данных таймера в виде строки
+        this.output.innerHTML=`<p>${min}: ${(sec<10 ? '0'+sec :sec)}</p>`;    //аналогично: '<p>'+min+': '+ (sec<10 ? '0'+sec :sec)+'</p>'
     }
 
     finishTimer():void{
@@ -327,13 +344,19 @@ class timer{
 }
 
 
+
+
 function main():void {
-    let N:number = 20;
+    let M:number = 4;
+    let N:number = 5;
     let gameTime:number = 180;
     let field:gameField;
-    let time:number = 1000*60*3;
+    let time:number = 1000*60*3;    //3 минуты
+    let htmlIdField = "buttons";
+    let htmlIdButtons = "button-";
+    let htmlIdTimer = "timer";
     try{
-        field = new gameField(N, "button-", "timer", gameTime);
+        field = new gameField(M, N, htmlIdField, htmlIdButtons, htmlIdTimer, gameTime);
     }
     catch(err) {
         console.log(err); 
