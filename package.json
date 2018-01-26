@@ -1,0 +1,26 @@
+{
+  "name": "my-perfect-game",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:scripts": "webpack",
+    "postinstall": "npm run build:scripts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tak333/my-perfect-game.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tak333/my-perfect-game/issues"
+  },
+  "homepage": "https://github.com/tak333/my-perfect-game#readme",
+  "devDependencies": {
+    "ts-loader": "^3.3.1",
+    "typescript": "^2.6.2",
+    "webpack": "^3.10.0"
+  }
+}
