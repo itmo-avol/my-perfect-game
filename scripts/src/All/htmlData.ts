@@ -10,9 +10,9 @@ class htmlData{
 
     //скрыть элементы страницы по их id
     static hidePageElements(i: number):void{
-        if ( i!=1 && i!=2 )
+        if ( i!==1 && i!==2 )
             throw new Error('Unknown parameter (not 1/2)');
-        let PageElementsId:string[] = (i==1)? htmlData.firstPageId : htmlData.secondPageId;
+        let PageElementsId:string[] = (i===1)? htmlData.firstPageId : htmlData.secondPageId;
         let elem:HTMLElement;
         PageElementsId.forEach( (value:string)=>{
             elem = document.getElementById(value) as HTMLElement;
@@ -23,9 +23,9 @@ class htmlData{
 
     //показать элементы страницы по их id
     static showPageElements(i: number):void{
-        if ( i!=1 && i!=2 )
+        if ( i!==1 && i!==2 )
             throw new Error('Unknown parameter (not 1/2)');
-        let PageElementsId:string[] = (i==1)? htmlData.firstPageId : htmlData.secondPageId;
+        let PageElementsId:string[] = (i===1)? htmlData.firstPageId : htmlData.secondPageId;
         let elem:HTMLElement;
         PageElementsId.forEach( (value:string)=>{
             elem = document.getElementById(value) as HTMLElement;
@@ -47,3 +47,5 @@ class htmlData{
 
 export {
     htmlData as default,};
+
+    ////без класса

@@ -1,6 +1,6 @@
 
-import gameCourse from './gameCourse';
-import gameField from './gameField';
+import GameCourse from './GameCourse';
+import GameField from './GameField';
 import timer from './timer';
 
 //основной код
@@ -8,18 +8,18 @@ function game():void {
 
     let M:number = 4;   //строки
     let N:number = 5;   //столбцы
-    let gameTime:number = 3*60; //время игры
-    let field:gameField;    //игровое поле
+    let gameTime:number = 2*60; //время игры
+    let field:GameField;    //игровое поле
 
     try{
-        field = new gameField(M, N);
+        field = new GameField(M, N);
     }
     catch(err) {        //если поле не было создано из-за ошибки, бросаем ее выше
         throw err; 
     }
 
     let gameTimer:timer = new timer(gameTime);
-    let game:gameCourse = new gameCourse(field, gameTimer, gameTime);
+    let game:GameCourse = new GameCourse(field, gameTimer, gameTime);
     game;
     gameTimer;
 }

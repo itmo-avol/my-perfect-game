@@ -2,11 +2,11 @@
 import Colors from './Colors';
 import getRandomInt from './getRandomInt';
 
-class gameColors    //таблица цветов для данной игры
+class GameColors    //таблица цветов для данной игры
 {
     constructor(dis:number, n?:number ){    //(дисперсия - разброс поиска ближайшего цвета, количество цветов)
-        if ( n!=undefined )
-            if ( n > gameColors.N_COLOR )
+        if ( n!==undefined )
+            if ( n > GameColors.N_COLOR )
                 throw new Error("A lot of recuired colors.");   //сообщает о невозможности предоставления такого количества цветов
         this.dis = dis;
     }
@@ -17,7 +17,7 @@ class gameColors    //таблица цветов для данной игры
     isColorUsed(color:Colors):boolean{      //проверка, использовался ли цвет до этого
     let n:number = this.usedColors.length;
         for(let i=0; i<n; i++){
-            if (color==this.usedColors[i])  //если обнаружено совпадение с ранее используемыми => true (иначе false)
+            if (color===this.usedColors[i])  //если обнаружено совпадение с ранее используемыми => true (иначе false)
                 return true;
         }
         return false;
@@ -30,7 +30,7 @@ class gameColors    //таблица цветов для данной игры
         newColor = this.getCloseColor(color);  //получаем случайным образом цвет, лежащий в необходимом радиусе
         if (this.isColorUsed(newColor)){            //если цвет использовался, ищем новый:
             let newColorResult:Colors|undefined = this.getUncolissionColor(color);  //поиск ближайшего незанятого цвета среди всех
-            if (newColorResult != undefined){
+            if (newColorResult !== undefined){
                 newColor = newColorResult;              //если цвет был найден, запоминаем его
             }
             else{
@@ -44,7 +44,7 @@ class gameColors    //таблица цветов для данной игры
     //Поиск любого "неконфликтующего"/неповторяющегося цвета:
     getUncolissionColor(color:Colors):Colors|undefined{ 
         let newColor:Colors|undefined = this.getClosestOriginalColor(color);    //ищем цвет в необходимом радиусе
-            if ( newColor == undefined ){
+            if ( newColor === undefined ){
                 newColor = this.getAnyAnotherColor(color);  //если он не найден ищем его по всей таблице по мере отдаления от точки поиска
             }
         return newColor;    //возвращаем найденный цвет или undefined
@@ -53,7 +53,7 @@ class gameColors    //таблица цветов для данной игры
     //поиск ближайшего неповторимого цвета:
     getClosestOriginalColor(color:Colors):Colors|undefined{
         let newColor:Colors|undefined = this.getClosestLeftOriginalColor(color);    //ищем ближайший цвет в радиусе слева
-        if ( newColor == undefined ){
+        if ( newColor === undefined ){
             newColor = this.getClosestRightOriginalColor(color);     //если он не найден, ищем ближайший цвет в радиусе справа
         }
         return newColor;    //возвращаем найденный цвет или undefined
@@ -85,7 +85,7 @@ class gameColors    //таблица цветов для данной игры
     //ищем любой цвет, начиная от радиуса дисперсии:
     getAnyAnotherColor(color:Colors):Colors|undefined{
         let newColor:Colors|undefined = this.getAnyLeftOriginalColor( this.getMinCloseColor(color) );  //ищем цвет слева по таблице
-        if ( newColor == undefined ){
+        if ( newColor === undefined ){
             newColor = this.getAnyRightOriginalColor( this.getMaxCloseColor(color) );   //ищем цвет справа по таблице
         }
         return newColor;    //возвращаем найденный цвет или undefined
@@ -103,7 +103,7 @@ class gameColors    //таблица цветов для данной игры
 
     //поиск любого неповторяющегося цвета справа по таблице от входной точки
     getAnyRightOriginalColor(color:Colors):Colors|undefined{ 
-        for(let i:Colors=color; i<gameColors.N_COLOR; i++){
+        for(let i:Colors=color; i<GameColors.N_COLOR; i++){
             if ( !this.isColorUsed(i) ){    //если найден неиспользуемый цвет => его
                 return i;
             }
@@ -127,11 +127,11 @@ class gameColors    //таблица цветов для данной игры
     }
 
     getMaxCloseColor(color:Colors):Colors{    //наиболее дальний справа цвет в радиусе dis
-        return (color + this.dis) >= gameColors.N_COLOR ? gameColors.N_COLOR-1 : (color + this.dis);
+        return (color + this.dis) >= GameColors.N_COLOR ? GameColors.N_COLOR-1 : (color + this.dis);
     }
 
     getRandomColor():Colors{    //получение случайного цвета из таблицы цветов (опорной точки, без сохранения в массив)
-        let color:Colors = getRandomInt(0, gameColors.N_COLOR-1);
+        let color:Colors = getRandomInt(0, GameColors.N_COLOR-1);
         //this.usedColors.push(color);    //сохранение цвета в массив используемых цветов
         return color;
     }
@@ -139,5 +139,5 @@ class gameColors    //таблица цветов для данной игры
 }
 
 export {
-    gameColors as default,
+    GameColors as default,
 };

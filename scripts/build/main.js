@@ -71,9 +71,9 @@
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return htmlData; });
 class htmlData {
     static hidePageElements(i) {
-        if (i != 1 && i != 2)
+        if (i !== 1 && i !== 2)
             throw new Error('Unknown parameter (not 1/2)');
-        let PageElementsId = (i == 1) ? htmlData.firstPageId : htmlData.secondPageId;
+        let PageElementsId = (i === 1) ? htmlData.firstPageId : htmlData.secondPageId;
         let elem;
         PageElementsId.forEach((value) => {
             elem = document.getElementById(value);
@@ -81,9 +81,9 @@ class htmlData {
         });
     }
     static showPageElements(i) {
-        if (i != 1 && i != 2)
+        if (i !== 1 && i !== 2)
             throw new Error('Unknown parameter (not 1/2)');
-        let PageElementsId = (i == 1) ? htmlData.firstPageId : htmlData.secondPageId;
+        let PageElementsId = (i === 1) ? htmlData.firstPageId : htmlData.secondPageId;
         let elem;
         PageElementsId.forEach((value) => {
             elem = document.getElementById(value);
@@ -174,7 +174,7 @@ function initGameButton() {
     let startButton = document.getElementById(__WEBPACK_IMPORTED_MODULE_1__htmlData__["a" /* default */].idStartButton);
     let timer = document.getElementById(__WEBPACK_IMPORTED_MODULE_1__htmlData__["a" /* default */].idTimer);
     startButton.addEventListener('click', (event) => {
-        if (event != undefined) {
+        if (event !== undefined) {
             startButton.style.display = "none";
             timer.style.display = '';
             Object(__WEBPACK_IMPORTED_MODULE_0__gameFunction__["a" /* default */])();
@@ -190,8 +190,8 @@ function initGameButton() {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return game; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__gameCourse__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__gameField__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__GameCourse__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__GameField__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__timer__ = __webpack_require__(12);
 
 
@@ -199,16 +199,16 @@ function initGameButton() {
 function game() {
     let M = 4;
     let N = 5;
-    let gameTime = 3 * 60;
+    let gameTime = 2 * 60;
     let field;
     try {
-        field = new __WEBPACK_IMPORTED_MODULE_1__gameField__["a" /* default */](M, N);
+        field = new __WEBPACK_IMPORTED_MODULE_1__GameField__["a" /* default */](M, N);
     }
     catch (err) {
         throw err;
     }
     let gameTimer = new __WEBPACK_IMPORTED_MODULE_2__timer__["a" /* default */](gameTime);
-    let game = new __WEBPACK_IMPORTED_MODULE_0__gameCourse__["a" /* default */](field, gameTimer, gameTime);
+    let game = new __WEBPACK_IMPORTED_MODULE_0__GameCourse__["a" /* default */](field, gameTimer, gameTime);
     game;
     gameTimer;
 }
@@ -220,10 +220,10 @@ function game() {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return gameCourse; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return GameCourse; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__htmlData__ = __webpack_require__(0);
 
-class gameCourse {
+class GameCourse {
     constructor(field, gameTic, time) {
         this.isTheFirst = false;
         this.field = field;
@@ -235,7 +235,7 @@ class gameCourse {
     }
     addButtonsListeners(buttonField) {
         buttonField.button.forEach(item => (item.button.addEventListener('click', (event) => {
-            if (event != undefined) {
+            if (event !== undefined) {
                 if (!item.isOpen)
                     this.handleClick(item);
             }
@@ -248,7 +248,7 @@ class gameCourse {
             this.isTheFirst = true;
         }
         else {
-            if (this.waitingAnswerButton.color == elem.color) {
+            if (this.waitingAnswerButton.color === elem.color) {
                 this.waitingAnswerButton.setFixedStyle();
                 elem.setFixedStyle();
                 this.closedButtonsPairs--;
@@ -294,16 +294,16 @@ class gameCourse {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return gameField; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__gameButton__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__gameColors__ = __webpack_require__(11);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return GameField; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__GameButton__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__GameColors__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__htmlData__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__getRandomInt__ = __webpack_require__(1);
 
 
 
 
-class gameField {
+class GameField {
     constructor(m, n) {
         this.button = [];
         this.m = m;
@@ -315,7 +315,7 @@ class gameField {
         this.N = N;
         this.initButtonsArray();
         try {
-            this.table = new __WEBPACK_IMPORTED_MODULE_1__gameColors__["a" /* default */](10, Math.floor(this.N / 2));
+            this.table = new __WEBPACK_IMPORTED_MODULE_1__GameColors__["a" /* default */](10, Math.floor(this.N / 2));
         }
         catch (err) {
             throw err;
@@ -337,7 +337,7 @@ class gameField {
     }
     initButtonsArray() {
         for (let i = 0; i < this.N; i++) {
-            let elem = new __WEBPACK_IMPORTED_MODULE_0__gameButton__["a" /* default */](document.getElementById(__WEBPACK_IMPORTED_MODULE_2__htmlData__["a" /* default */].idButton + i));
+            let elem = new __WEBPACK_IMPORTED_MODULE_0__GameButton__["a" /* default */](document.getElementById(__WEBPACK_IMPORTED_MODULE_2__htmlData__["a" /* default */].idButton + i));
             this.button.push(elem);
         }
     }
@@ -348,12 +348,12 @@ class gameField {
             randomColor = this.table.getUniqueClosestColor(randomColor);
             let index1, index2;
             index1 = this.getEmptyArrayIndex();
-            if (index1 != undefined) {
+            if (index1 !== undefined) {
                 this.button[index1].color = randomColor;
                 console.log(index1, randomColor);
             }
             index2 = this.getEmptyArrayIndex();
-            if (index2 != undefined) {
+            if (index2 !== undefined) {
                 this.button[index2].color = randomColor;
                 console.log(index2, randomColor);
             }
@@ -365,21 +365,14 @@ class gameField {
     getEmptyArrayIndex() {
         let index = Object(__WEBPACK_IMPORTED_MODULE_3__getRandomInt__["a" /* default */])(0, this.N - 1);
         let i = 0;
-        while (this.button[index].color != undefined) {
+        while (this.button[index].color !== undefined) {
             index = (index + 1) % this.N;
-            if (++i == this.N)
+            if (++i === this.N)
                 return undefined;
         }
         return index;
     }
     ;
-    isFixedAll() {
-        this.button.forEach((element) => {
-            if (!element.isOpen)
-                return false;
-        });
-        return true;
-    }
 }
 
 
@@ -389,12 +382,12 @@ class gameField {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return gameButton; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return GameButton; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Colors__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Borders__ = __webpack_require__(10);
 
 
-class gameButton {
+class GameButton {
     constructor(button) {
         this.button = button;
         this.isOpen = false;
@@ -407,7 +400,7 @@ class gameButton {
         this.isOpen = false;
     }
     setOpenStyle() {
-        this.button.style.backgroundColor = __WEBPACK_IMPORTED_MODULE_0__Colors__["a" /* default */][this.color == undefined ? 0 : this.color];
+        this.button.style.backgroundColor = __WEBPACK_IMPORTED_MODULE_0__Colors__["a" /* default */][this.color === undefined ? 0 : this.color];
         this.button.style.borderWidth = __WEBPACK_IMPORTED_MODULE_1__Borders__["a" /* default */][2];
         this.isOpen = true;
     }
@@ -590,21 +583,21 @@ var Borders;
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return gameColors; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return GameColors; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__getRandomInt__ = __webpack_require__(1);
 
-class gameColors {
+class GameColors {
     constructor(dis, n) {
         this.usedColors = [];
-        if (n != undefined)
-            if (n > gameColors.N_COLOR)
+        if (n !== undefined)
+            if (n > GameColors.N_COLOR)
                 throw new Error("A lot of recuired colors.");
         this.dis = dis;
     }
     isColorUsed(color) {
         let n = this.usedColors.length;
         for (let i = 0; i < n; i++) {
-            if (color == this.usedColors[i])
+            if (color === this.usedColors[i])
                 return true;
         }
         return false;
@@ -614,7 +607,7 @@ class gameColors {
         newColor = this.getCloseColor(color);
         if (this.isColorUsed(newColor)) {
             let newColorResult = this.getUncolissionColor(color);
-            if (newColorResult != undefined) {
+            if (newColorResult !== undefined) {
                 newColor = newColorResult;
             }
             else {
@@ -626,14 +619,14 @@ class gameColors {
     }
     getUncolissionColor(color) {
         let newColor = this.getClosestOriginalColor(color);
-        if (newColor == undefined) {
+        if (newColor === undefined) {
             newColor = this.getAnyAnotherColor(color);
         }
         return newColor;
     }
     getClosestOriginalColor(color) {
         let newColor = this.getClosestLeftOriginalColor(color);
-        if (newColor == undefined) {
+        if (newColor === undefined) {
             newColor = this.getClosestRightOriginalColor(color);
         }
         return newColor;
@@ -658,7 +651,7 @@ class gameColors {
     }
     getAnyAnotherColor(color) {
         let newColor = this.getAnyLeftOriginalColor(this.getMinCloseColor(color));
-        if (newColor == undefined) {
+        if (newColor === undefined) {
             newColor = this.getAnyRightOriginalColor(this.getMaxCloseColor(color));
         }
         return newColor;
@@ -672,7 +665,7 @@ class gameColors {
         return undefined;
     }
     getAnyRightOriginalColor(color) {
-        for (let i = color; i < gameColors.N_COLOR; i++) {
+        for (let i = color; i < GameColors.N_COLOR; i++) {
             if (!this.isColorUsed(i)) {
                 return i;
             }
@@ -692,14 +685,14 @@ class gameColors {
         return (color - this.dis) < 0 ? 0 : (color - this.dis);
     }
     getMaxCloseColor(color) {
-        return (color + this.dis) >= gameColors.N_COLOR ? gameColors.N_COLOR - 1 : (color + this.dis);
+        return (color + this.dis) >= GameColors.N_COLOR ? GameColors.N_COLOR - 1 : (color + this.dis);
     }
     getRandomColor() {
-        let color = Object(__WEBPACK_IMPORTED_MODULE_0__getRandomInt__["a" /* default */])(0, gameColors.N_COLOR - 1);
+        let color = Object(__WEBPACK_IMPORTED_MODULE_0__getRandomInt__["a" /* default */])(0, GameColors.N_COLOR - 1);
         return color;
     }
 }
-gameColors.N_COLOR = 140;
+GameColors.N_COLOR = 140;
 
 
 
@@ -754,7 +747,7 @@ class timer {
 function initBackButton() {
     let backButton = document.getElementById(__WEBPACK_IMPORTED_MODULE_1__htmlData__["a" /* default */].idBackButton);
     backButton.addEventListener('click', (event) => {
-        if (event != undefined) {
+        if (event !== undefined) {
             Object(__WEBPACK_IMPORTED_MODULE_0__restartFunction__["a" /* default */])();
         }
     });

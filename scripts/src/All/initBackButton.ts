@@ -9,7 +9,7 @@ function initBackButton():void{
 
     backButton.addEventListener ('click', (event: Event): void =>    //вешаем слушатель события 'click'
         {
-            if (event != undefined) //если пользователь кликнул
+            if (event !== undefined) //если пользователь кликнул
             {   
                 restart();
             }

@@ -3,7 +3,7 @@ import Colors from './Colors';
 import Borders from './Borders';
 
 //класс кнопки (используемой на поле)
-class gameButton{
+class GameButton{
     constructor(button: HTMLButtonElement){  
         //конструктор для инициализации объекта кнопки, ее индекса, показателя открытости кнопки
         this.button = button;
@@ -22,7 +22,7 @@ class gameButton{
     }
 
     setOpenStyle(){     //Устанавливаем стиль "открытой кнопки" (в режиме ожидания выбора следующей кнопки)
-        this.button.style.backgroundColor = Colors[this.color == undefined? 0: this.color];
+        this.button.style.backgroundColor = Colors[this.color === undefined? 0: this.color];
         this.button.style.borderWidth = Borders[2];
         this.isOpen = true;
     }
@@ -35,4 +35,4 @@ class gameButton{
 }
 
 export {
-    gameButton as default,};
+    GameButton as default,};
